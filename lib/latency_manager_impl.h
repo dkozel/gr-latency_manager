@@ -31,7 +31,6 @@ namespace gr {
      private:
         int d_tokens;
         void add_token(pmt::pmt_t tag);
-        std::vector<tag_t> d_tags;
         int d_itemsize;
         
      public:

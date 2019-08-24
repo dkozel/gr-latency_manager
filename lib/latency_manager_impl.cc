@@ -65,23 +65,26 @@ namespace gr {
       const char *in = (const char*) input_items[0];
       char *out = (char *) output_items[0];
         
+      std::vector<gr::tag_t> tags;
+
       // assumes tags are at the start of bursts they refer to
-      get_tags_in_window(d_tags, 0, 0, noutput_items);
+      get_tags_in_range(tags, 0, nitems_read(0), noutput_items + nitems_read(0));
       int stop_point = 0;
-//      std::cout << "At Start:\tStop point: " << stop_point << " Num tags in input: " << d_tags.size() << "Tokens available: " << d_tokens << "\n";
-      if (d_tags.size() >= d_tokens && !d_tags.empty()) {
-        stop_point = d_tags[d_tokens].offset - nitems_read(0);
+      // std::cout << "At Start:\tStop point: " << stop_point << " Num tags in input: " << tags.size() << " Tokens available: " << d_tokens << "\n";
+      if (tags.size() > d_tokens && !tags.empty()) {
+        stop_point = tags[d_tokens].offset - nitems_read(0);
+        // std::cout << "Token offset:  " << tags[d_tokens].offset << " nitems_read(0): " << nitems_read(0) << std::endl;
         d_tokens = 0;
       } else {
         stop_point = noutput_items;
-        d_tokens -= d_tags.size();
+        d_tokens -= tags.size();
       } 
- //     std::cout << "After:\tStop point: " << stop_point << " Num tags: " << d_tags.size() << "Tokens after: " << d_tokens << "\n";
+      // std::cout << "After:\tStop point: " << stop_point << " Num tags: " << tags.size() << " Tokens after: " << d_tokens << "\n" << std::endl;
       std::memcpy(out, in, stop_point * d_itemsize);
 
 
       if (stop_point <= 0) {
-  //      std::cout << "Tokens exhausted, not outputting\n";
+        // std::cout << "Tokens exhausted, not outputting\n";
         boost::this_thread::sleep(boost::posix_time::microseconds(long(10000)));
       }
       
