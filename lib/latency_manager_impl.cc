@@ -24,6 +24,7 @@
 
 #include <gnuradio/io_signature.h>
 #include "latency_manager_impl.h"
+#include <boost/thread/thread.hpp>
 
 namespace gr {
   namespace example {
@@ -38,6 +39,7 @@ namespace gr {
     void latency_manager_impl::add_token(pmt::pmt_t msg)
     {
         d_tokens++;
+//        std::cout << "Tokens: " << d_tokens << " : Added one\n";
     }
 
     latency_manager_impl::latency_manager_impl(int max_tags_in_flight)
@@ -62,20 +64,28 @@ namespace gr {
       const gr_complex *in = (const gr_complex*) input_items[0];
       gr_complex *out = (gr_complex *) output_items[0];
         
+      // assumes tags are at the start of bursts they refer to
       get_tags_in_window(d_tags,0, 0, noutput_items);
-      if (!d_tags.empty()) {
+      int stop_point = 0;
+//      std::cout << "At Start:\tStop point: " << stop_point << " Num tags in input: " << d_tags.size() << "Tokens available: " << d_tokens << "\n";
+      if (d_tags.size() >= d_tokens && !d_tags.empty()) {
+        stop_point = d_tags[d_tokens].offset - nitems_read(0);
+        d_tokens = 0;
+      } else {
+        stop_point = noutput_items - nitems_read(0);
         d_tokens -= d_tags.size();
+      } 
+ //     std::cout << "After:\tStop point: " << stop_point << " Num tags: " << d_tags.size() << "Tokens after: " << d_tokens << "\n";
+      std::memcpy(out, in, stop_point * sizeof(gr_complex));
+
+
+      if (stop_point <= 0) {
+  //      std::cout << "Tokens exhausted, not outputting\n";
+        boost::this_thread::sleep(boost::posix_time::microseconds(long(1000)));
       }
-
-      if (d_tokens <= 0) {
-        noutput_items = 0;
-      }
-
-      std::memcpy(out, in, noutput_items * sizeof(gr_complex));
-
-      return noutput_items;
+      
+      return stop_point;
     }
-
   } /* namespace example */
 } /* namespace gr */
 

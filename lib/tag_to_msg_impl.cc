@@ -89,7 +89,7 @@ std::string tag_to_msg_impl::key_filter() const { return pmt::symbol_to_string(d
     {
     gr::thread::scoped_lock l(d_mutex);
     bool toprint = false;
-
+    d_display = false;
     std::stringstream sout;
     if (d_display) {
         sout << std::endl

@@ -81,7 +81,7 @@ blocks:
   parameters:
     affinity: ''
     alias: ''
-    amp: '1'
+    amp: '0.1'
     comment: ''
     maxoutbuf: '0'
     minoutbuf: '0'
@@ -131,19 +131,6 @@ blocks:
     coordinate: [576, 272.0]
     rotation: 0
     state: true
-- name: blocks_message_debug_0
-  id: blocks_message_debug
-  parameters:
-    affinity: ''
-    alias: ''
-    comment: ''
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [1216, 288.0]
-    rotation: 0
-    state: disabled
 - name: blocks_multiply_const_vxx_0
   id: blocks_multiply_const_vxx
   parameters:
@@ -178,7 +165,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [816, 444.0]
+    coordinate: [824, 436.0]
     rotation: 0
     state: true
 - name: blocks_vector_source_x_0
@@ -224,7 +211,7 @@ blocks:
     alias: ''
     comment: ''
     display: 'False'
-    filter: '""'
+    filter: '"latency_canary"'
     issue_messages: 'True'
     maxoutbuf: '0'
     minoutbuf: '0'
@@ -236,7 +223,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [992, 348.0]
+    coordinate: [1024, 348.0]
     rotation: 0
     state: enabled
 - name: qtgui_freq_sink_x_0
@@ -316,7 +303,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [992, 448.0]
+    coordinate: [1160, 448.0]
     rotation: 0
     state: true
 
@@ -329,7 +316,6 @@ connections:
 - [blocks_throttle_0, '0', qtgui_freq_sink_x_0, '0']
 - [blocks_vector_source_x_0, '0', example_latency_manager_0, '0']
 - [example_latency_manager_0, '0', blocks_multiply_const_vxx_0, '0']
-- [example_tag_to_msg_0, msg, blocks_message_debug_0, print]
 - [example_tag_to_msg_0, msg, example_latency_manager_0, token]
 
 metadata:
