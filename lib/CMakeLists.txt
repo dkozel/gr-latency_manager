@@ -25,6 +25,8 @@ include(GrPlatform) #define LIB_SUFFIX
 
 list(APPEND example_sources
     basis_change_impl.cc
+    tag_to_msg_impl.cc
+    latency_manager_impl.cc
 )
 
 set(example_sources "${example_sources}" PARENT_SCOPE)

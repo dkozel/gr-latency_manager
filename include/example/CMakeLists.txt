@@ -23,5 +23,7 @@
 ########################################################################
 install(FILES
     api.h
-    basis_change.h DESTINATION include/example
+    basis_change.h
+    tag_to_msg.h
+    latency_manager.h DESTINATION include/example
 )

@@ -19,5 +19,7 @@
 # Boston, MA 02110-1301, USA.
 
 install(FILES
-    example_basis_change.block.yml DESTINATION share/gnuradio/grc/blocks
+    example_basis_change.block.yml
+    example_tag_to_msg.block.yml
+    example_latency_manager.block.yml DESTINATION share/gnuradio/grc/blocks
 )

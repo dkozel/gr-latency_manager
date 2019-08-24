@@ -1,0 +1,28 @@
+id: example_latency_manager
+label: latency_manager
+category: '[example]'
+
+templates:
+  imports: import example
+  make: example.latency_manager(${max_tags_in_flight})
+
+parameters:
+- id: max_tags_in_flight 
+  label: "Max tags in flight"
+  dtype: int 
+
+inputs:
+- domain: message
+  id: token 
+  optional: true 
+- label: in 
+  domain: stream 
+  dtype: complex 
+  vlen: 1 
+
+outputs:
+- label: out 
+  domain: stream 
+  dtype: complex 
+
+file_format: 1
