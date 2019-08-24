@@ -46,7 +46,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [856, 120.0]
+    coordinate: [368, 12.0]
     rotation: 0
     state: true
 - name: latency_canary
@@ -61,7 +61,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [32, 124.0]
+    coordinate: [248, 12.0]
     rotation: 0
     state: true
 - name: samp_rate
@@ -73,7 +73,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [184, 12]
+    coordinate: [160, 8.0]
     rotation: 0
     state: enabled
 - name: analog_noise_source_x_0
@@ -87,12 +87,12 @@ blocks:
     minoutbuf: '0'
     noise_type: analog.GR_GAUSSIAN
     seed: '0'
-    type: complex
+    type: float
   states:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [48, 412.0]
+    coordinate: [200, 240.0]
     rotation: 0
     state: enabled
 - name: blocks_add_const_vxx_0
@@ -104,13 +104,13 @@ blocks:
     const: '0'
     maxoutbuf: '0'
     minoutbuf: '0'
-    type: complex
+    type: float
     vlen: '1'
   states:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [656, 284.0]
+    coordinate: [600, 188.0]
     rotation: 0
     state: true
 - name: blocks_add_xx_0
@@ -122,13 +122,13 @@ blocks:
     maxoutbuf: '0'
     minoutbuf: '0'
     num_inputs: '2'
-    type: complex
+    type: float
     vlen: '1'
   states:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [576, 272.0]
+    coordinate: [512, 172.0]
     rotation: 0
     state: true
 - name: blocks_multiply_const_vxx_0
@@ -140,13 +140,13 @@ blocks:
     const: amplitude
     maxoutbuf: '0'
     minoutbuf: '0'
-    type: complex
+    type: float
     vlen: '1'
   states:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [424, 268.0]
+    coordinate: [368, 172.0]
     rotation: 0
     state: true
 - name: blocks_throttle_0
@@ -159,13 +159,13 @@ blocks:
     maxoutbuf: '0'
     minoutbuf: '0'
     samples_per_second: samp_rate
-    type: complex
+    type: float
     vlen: '1'
   states:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [824, 436.0]
+    coordinate: [712, 188.0]
     rotation: 0
     state: true
 - name: blocks_vector_source_x_0
@@ -178,14 +178,14 @@ blocks:
     minoutbuf: '0'
     repeat: 'True'
     tags: '[latency_canary]'
-    type: complex
-    vector: (1,)*int(samp_rate/100)
+    type: float
+    vector: (1,)*320
     vlen: '1'
   states:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [32, 268.0]
+    coordinate: [8, 144.0]
     rotation: 0
     state: true
 - name: example_latency_manager_0
@@ -197,11 +197,13 @@ blocks:
     max_tags_in_flight: '5'
     maxoutbuf: '0'
     minoutbuf: '0'
+    type: float
+    vlen: '1'
   states:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [240, 256.0]
+    coordinate: [200, 156.0]
     rotation: 0
     state: enabled
 - name: example_tag_to_msg_0
@@ -217,13 +219,13 @@ blocks:
     minoutbuf: '0'
     name: ''
     num_inputs: '1'
-    type: complex
+    type: float
     vlen: '1'
   states:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1024, 348.0]
+    coordinate: [864, 76.0]
     rotation: 0
     state: enabled
 - name: qtgui_freq_sink_x_0
@@ -283,7 +285,7 @@ blocks:
     tr_level: '0.0'
     tr_mode: qtgui.TRIG_MODE_FREE
     tr_tag: '""'
-    type: complex
+    type: float
     units: dB
     update_time: '0.10'
     width1: '1'
@@ -303,7 +305,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1160, 448.0]
+    coordinate: [880, 188.0]
     rotation: 0
     state: true
 

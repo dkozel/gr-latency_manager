@@ -1,28 +1,45 @@
 id: example_latency_manager
-label: latency_manager
+label: Latency Manager
 category: '[example]'
 
-templates:
-  imports: import example
-  make: example.latency_manager(${max_tags_in_flight})
-
 parameters:
+- id: type
+  label: Input Type
+  dtype: enum
+  options: [complex, float, int, short, byte]
+  option_attributes:
+      size: [gr.sizeof_gr_complex, gr.sizeof_float, gr.sizeof_int, gr.sizeof_short,
+          gr.sizeof_char]
+  hide: part
+
+- id: vlen
+  label: Vec Length
+  dtype: int
+  default: '1'
+  hide: ${ 'part' if vlen == 1 else 'none' }
+
 - id: max_tags_in_flight 
   label: "Max tags in flight"
   dtype: int 
 
 inputs:
+- label: in 
+  domain: stream 
+  dtype: ${ type }
+  vlen: ${ vlen }
+
 - domain: message
   id: token 
   optional: true 
-- label: in 
-  domain: stream 
-  dtype: complex 
-  vlen: 1 
 
 outputs:
 - label: out 
   domain: stream 
-  dtype: complex 
+  dtype: ${ type }
+  vlen: ${ vlen }
+
+templates:
+  imports: import example
+  make: example.latency_manager(${max_tags_in_flight}, ${type.size}*${vlen})
 
 file_format: 1

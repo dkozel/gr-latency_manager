@@ -30,10 +30,10 @@ namespace gr {
   namespace example {
 
     latency_manager::sptr
-    latency_manager::make(int max_tags_in_flight)
+    latency_manager::make(int max_tags_in_flight, int itemsize)
     {
       return gnuradio::get_initial_sptr
-        (new latency_manager_impl(max_tags_in_flight));
+        (new latency_manager_impl(max_tags_in_flight, itemsize));
     }
 
     void latency_manager_impl::add_token(pmt::pmt_t msg)
@@ -42,10 +42,11 @@ namespace gr {
 //        std::cout << "Tokens: " << d_tokens << " : Added one\n";
     }
 
-    latency_manager_impl::latency_manager_impl(int max_tags_in_flight)
+    latency_manager_impl::latency_manager_impl(int max_tags_in_flight, int itemsize)
       : gr::sync_block("latency_manager",
-              gr::io_signature::make(1, 1, sizeof(gr_complex)),
-              gr::io_signature::make(1, 1, sizeof(gr_complex)))
+              gr::io_signature::make(1, 1, itemsize),
+              gr::io_signature::make(1, 1, itemsize)),
+        d_itemsize(itemsize)
     {
         d_tokens = max_tags_in_flight;
         message_port_register_in(pmt::mp("token"));
@@ -61,11 +62,11 @@ namespace gr {
         gr_vector_const_void_star &input_items,
         gr_vector_void_star &output_items)
     {
-      const gr_complex *in = (const gr_complex*) input_items[0];
-      gr_complex *out = (gr_complex *) output_items[0];
+      const char *in = (const char*) input_items[0];
+      char *out = (char *) output_items[0];
         
       // assumes tags are at the start of bursts they refer to
-      get_tags_in_window(d_tags,0, 0, noutput_items);
+      get_tags_in_window(d_tags, 0, 0, noutput_items);
       int stop_point = 0;
 //      std::cout << "At Start:\tStop point: " << stop_point << " Num tags in input: " << d_tags.size() << "Tokens available: " << d_tokens << "\n";
       if (d_tags.size() >= d_tokens && !d_tags.empty()) {
@@ -76,12 +77,12 @@ namespace gr {
         d_tokens -= d_tags.size();
       } 
  //     std::cout << "After:\tStop point: " << stop_point << " Num tags: " << d_tags.size() << "Tokens after: " << d_tokens << "\n";
-      std::memcpy(out, in, stop_point * sizeof(gr_complex));
+      std::memcpy(out, in, stop_point * d_itemsize);
 
 
       if (stop_point <= 0) {
   //      std::cout << "Tokens exhausted, not outputting\n";
-        boost::this_thread::sleep(boost::posix_time::microseconds(long(1000)));
+        boost::this_thread::sleep(boost::posix_time::microseconds(long(10000)));
       }
       
       return stop_point;

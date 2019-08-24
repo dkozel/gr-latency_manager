@@ -37,7 +37,7 @@ namespace gr {
      public:
       typedef boost::shared_ptr<latency_manager> sptr;
 
-      static sptr make(int max_tags_in_flight);
+      static sptr make(int max_tags_in_flight, int itemsize);
     };
 
   } // namespace example
