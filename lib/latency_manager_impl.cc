@@ -72,7 +72,7 @@ namespace gr {
         stop_point = d_tags[d_tokens].offset - nitems_read(0);
         d_tokens = 0;
       } else {
-        stop_point = noutput_items - nitems_read(0);
+        stop_point = noutput_items;
         d_tokens -= d_tags.size();
       } 
  //     std::cout << "After:\tStop point: " << stop_point << " Num tags: " << d_tags.size() << "Tokens after: " << d_tokens << "\n";
