@@ -30,10 +30,10 @@ namespace gr {
   namespace example {
 
     latency_manager::sptr
-    latency_manager::make(int max_tags_in_flight, int itemsize)
+    latency_manager::make(int max_tags_in_flight, int tag_interval, int itemsize)
     {
       return gnuradio::get_initial_sptr
-        (new latency_manager_impl(max_tags_in_flight, itemsize));
+        (new latency_manager_impl(max_tags_in_flight, tag_interval, itemsize));
     }
 
     void latency_manager_impl::add_token(pmt::pmt_t msg)
@@ -42,15 +42,20 @@ namespace gr {
 //        std::cout << "Tokens: " << d_tokens << " : Added one\n";
     }
 
-    latency_manager_impl::latency_manager_impl(int max_tags_in_flight, int itemsize)
+    latency_manager_impl::latency_manager_impl(int max_tags_in_flight, int tag_interval, int itemsize)
       : gr::sync_block("latency_manager",
               gr::io_signature::make(1, 1, itemsize),
               gr::io_signature::make(1, 1, itemsize)),
-        d_itemsize(itemsize)
+        d_itemsize(itemsize),
+        d_tag_interval(tag_interval),
+        d_tag_phase(0)
     {
         d_tokens = max_tags_in_flight;
         message_port_register_in(pmt::mp("token"));
         set_msg_handler(pmt::mp("token"), boost::bind(&latency_manager_impl::add_token, this, _1));
+        d_tag.key = pmt::intern("latency_strobe");
+        d_tag.srcid = alias_pmt();
+
     }
 
     latency_manager_impl::~latency_manager_impl()
@@ -64,31 +69,23 @@ namespace gr {
     {
       const char *in = (const char*) input_items[0];
       char *out = (char *) output_items[0];
-        
-      std::vector<gr::tag_t> tags;
 
-      // assumes tags are at the start of bursts they refer to
-      get_tags_in_range(tags, 0, nitems_read(0), noutput_items + nitems_read(0));
-      int stop_point = 0;
-      // std::cout << "At Start:\tStop point: " << stop_point << " Num tags in input: " << tags.size() << " Tokens available: " << d_tokens << "\n";
-      if (tags.size() > d_tokens && !tags.empty()) {
-        stop_point = tags[d_tokens].offset - nitems_read(0);
-        // std::cout << "Token offset:  " << tags[d_tokens].offset << " nitems_read(0): " << nitems_read(0) << std::endl;
-        d_tokens = 0;
-      } else {
-        stop_point = noutput_items;
-        d_tokens -= tags.size();
-      } 
-      // std::cout << "After:\tStop point: " << stop_point << " Num tags: " << tags.size() << " Tokens after: " << d_tokens << "\n" << std::endl;
-      std::memcpy(out, in, stop_point * d_itemsize);
+      int copy_count = std::min(noutput_items, d_tag_phase + d_tokens * d_tag_interval);
+      std::memcpy(out, in, copy_count * d_itemsize);
 
-
-      if (stop_point <= 0) {
-        // std::cout << "Tokens exhausted, not outputting\n";
-        boost::this_thread::sleep(boost::posix_time::microseconds(long(10000)));
+      int tag_loc = d_tag_phase;
+      while (tag_loc < copy_count) {
+        d_tag.offset = nitems_written(0) + tag_loc;
+        d_tag.value = pmt::from_long(tag_loc);
+        add_item_tag(0,d_tag);
+        tag_loc += d_tag_interval;
+        d_tokens--;
       }
-      
-      return stop_point;
+      d_tag_phase = tag_loc - copy_count;
+      if(copy_count == 0) {
+        boost::this_thread::sleep(boost::posix_time::microseconds(long(100)));
+      }
+      return copy_count;
     }
   } /* namespace example */
 } /* namespace gr */

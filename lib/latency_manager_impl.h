@@ -32,9 +32,12 @@ namespace gr {
         int d_tokens;
         void add_token(pmt::pmt_t tag);
         int d_itemsize;
+        int d_tag_interval;
+        int d_tag_phase;
+        tag_t d_tag;
         
      public:
-      latency_manager_impl(int max_tags_in_flight, int itemsize);
+      latency_manager_impl(int max_tags_in_flight, int tag_interval, int itemsize);
       ~latency_manager_impl();
 
       // Where all the action really happens
