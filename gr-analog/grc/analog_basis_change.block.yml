@@ -1,0 +1,37 @@
+id: analog_basis_change
+label: basis_change
+category: '[analog]'
+
+templates:
+  imports: import gnuradio.analog as analog
+  make: analog.basis_change(${ vlen }, ${ circ_to_lin })
+
+parameters:
+- id: circ_to_lin 
+  label: "Circular to Linear" 
+  dtype: bool 
+- id: vlen 
+  label: Vec Length 
+  dtype: int
+
+inputs:
+- label: Left 
+  domain: stream 
+  dtype: complex 
+  vlen: ${ vlen } 
+- label: Right 
+  domain: stream 
+  dtype: complex 
+  vlen: ${ vlen } 
+
+outputs:
+- label: Vertical 
+  domain: stream 
+  dtype: complex
+  vlen: ${ vlen }
+- label: Horizontal
+  domain: stream 
+  dtype: complex
+  vlen: ${ vlen }
+
+file_format: 1

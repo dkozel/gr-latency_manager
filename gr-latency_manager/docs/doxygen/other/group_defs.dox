@@ -1,0 +1,6 @@
+/*!
+ * \defgroup block GNU Radio LATENCY_MANAGER C++ Signal Processing Blocks
+ * \brief All C++ blocks that can be used from the LATENCY_MANAGER GNU Radio
+ *        module are listed here or in the subcategories below.
+ *
+ */

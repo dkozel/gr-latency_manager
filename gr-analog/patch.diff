@@ -1,0 +1,438 @@
+From d4e95a85433749570db5fd4c643adceade8b2ca0 Mon Sep 17 00:00:00 2001
+From: Bjoern Kerler <info@revskills.de>
+Date: Thu, 29 Sep 2022 18:20:48 +0200
+Subject: [PATCH] gr-analog test
+
+---
+ gr-analog/grc/analog_basis_change.block.yml   |  37 ++++++
+ .../include/gnuradio/analog/CMakeLists.txt    |   1 +
+ .../include/gnuradio/analog/basis_change.h    |  55 +++++++++
+ gr-analog/lib/CMakeLists.txt                  |   1 +
+ gr-analog/lib/basis_change_impl.cc            | 107 ++++++++++++++++++
+ gr-analog/lib/basis_change_impl.h             |  50 ++++++++
+ .../python/analog/bindings/CMakeLists.txt     |   1 +
+ .../analog/bindings/basis_change_python.cc    |  49 ++++++++
+ .../docstrings/basis_change_pydoc_template.h  |  24 ++++
+ .../python/analog/bindings/python_bindings.cc |   2 +
+ 10 files changed, 327 insertions(+)
+ create mode 100644 gr-analog/grc/analog_basis_change.block.yml
+ create mode 100644 gr-analog/include/gnuradio/analog/basis_change.h
+ create mode 100644 gr-analog/lib/basis_change_impl.cc
+ create mode 100644 gr-analog/lib/basis_change_impl.h
+ create mode 100644 gr-analog/python/analog/bindings/basis_change_python.cc
+ create mode 100644 gr-analog/python/analog/bindings/docstrings/basis_change_pydoc_template.h
+
+diff --git a/gr-analog/grc/analog_basis_change.block.yml b/gr-analog/grc/analog_basis_change.block.yml
+new file mode 100644
+index 00000000000..6cb5c0b8f11
+--- /dev/null
++++ b/gr-analog/grc/analog_basis_change.block.yml
+@@ -0,0 +1,37 @@
++id: analog_basis_change
++label: basis_change
++category: '[analog]'
++
++templates:
++  imports: import gnuradio.analog as analog
++  make: analog.basis_change(${ vlen }, ${ circ_to_lin })
++
++parameters:
++- id: circ_to_lin 
++  label: "Circular to Linear" 
++  dtype: bool 
++- id: vlen 
++  label: Vec Length 
++  dtype: int
++
++inputs:
++- label: Left 
++  domain: stream 
++  dtype: complex 
++  vlen: ${ vlen } 
++- label: Right 
++  domain: stream 
++  dtype: complex 
++  vlen: ${ vlen } 
++
++outputs:
++- label: Vertical 
++  domain: stream 
++  dtype: complex
++  vlen: ${ vlen }
++- label: Horizontal
++  domain: stream 
++  dtype: complex
++  vlen: ${ vlen }
++
++file_format: 1
+diff --git a/gr-analog/include/gnuradio/analog/CMakeLists.txt b/gr-analog/include/gnuradio/analog/CMakeLists.txt
+index f590d8c4214..9a29aac61d6 100644
+--- a/gr-analog/include/gnuradio/analog/CMakeLists.txt
++++ b/gr-analog/include/gnuradio/analog/CMakeLists.txt
+@@ -13,6 +13,7 @@ install(FILES
+     cpm.h
+     agc.h
+     agc2.h
++    basis_change.h
+     noise_type.h
+     squelch_base_ff.h
+     squelch_base_cc.h
+diff --git a/gr-analog/include/gnuradio/analog/basis_change.h b/gr-analog/include/gnuradio/analog/basis_change.h
+new file mode 100644
+index 00000000000..18e29b11477
+--- /dev/null
++++ b/gr-analog/include/gnuradio/analog/basis_change.h
+@@ -0,0 +1,55 @@
++/* -*- c++ -*- */
++/*
++ * Copyright 2019 Derek Kozel.
++ *
++ * This is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 3, or (at your option)
++ * any later version.
++ *
++ * This software is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this software; see the file COPYING.  If not, write to
++ * the Free Software Foundation, Inc., 51 Franklin Street,
++ * Boston, MA 02110-1301, USA.
++ */
++
++#ifndef INCLUDED_ANALOG_BASIS_CHANGE_H
++#define INCLUDED_ANALOG_BASIS_CHANGE_H
++
++#include <gnuradio/analog/api.h>
++#include <gnuradio/sync_block.h>
++
++namespace gr {
++  namespace analog {
++
++    /*!
++     * \brief <+description of block+>
++     * \ingroup analog
++     *
++     */
++    class ANALOG_API basis_change : virtual public gr::sync_block
++    {
++     public:
++      typedef std::shared_ptr<basis_change> sptr;
++
++      /*!
++       * \brief Return a shared_ptr to a new instance of analog::basis_change.
++       *
++       * To avoid accidental use of raw pointers, analog::basis_change's
++       * constructor is in a private implementation
++       * class. analog::basis_change::make is the public interface for
++       * creating new instances.
++       */
++      static sptr make(int vlen, bool circ_to_lin);
++    };
++
++  } // namespace analog
++} // namespace gr
++
++#endif /* INCLUDED_ANALOG_BASIS_CHANGE_H */
++
+diff --git a/gr-analog/lib/CMakeLists.txt b/gr-analog/lib/CMakeLists.txt
+index a207641bc74..db80cccf50d 100644
+--- a/gr-analog/lib/CMakeLists.txt
++++ b/gr-analog/lib/CMakeLists.txt
+@@ -18,6 +18,7 @@ add_library(gnuradio-analog
+     agc2_cc_impl.cc
+     agc2_ff_impl.cc
+     agc3_cc_impl.cc
++    basis_change_impl.cc
+     cpfsk_bc_impl.cc
+     ctcss_squelch_ff_impl.cc
+     dpll_bb_impl.cc
+diff --git a/gr-analog/lib/basis_change_impl.cc b/gr-analog/lib/basis_change_impl.cc
+new file mode 100644
+index 00000000000..fd5d0b1388c
+--- /dev/null
++++ b/gr-analog/lib/basis_change_impl.cc
+@@ -0,0 +1,107 @@
++/* -*- c++ -*- */
++/*
++ * Copyright 2019 Derek Kozel.
++ *
++ * This is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 3, or (at your option)
++ * any later version.
++ *
++ * This software is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this software; see the file COPYING.  If not, write to
++ * the Free Software Foundation, Inc., 51 Franklin Street,
++ * Boston, MA 02110-1301, USA.
++ */
++
++#ifdef HAVE_CONFIG_H
++#include "config.h"
++#endif
++
++#include <gnuradio/io_signature.h>
++#include "basis_change_impl.h"
++#include "volk/volk.h"
++
++namespace gr {
++  namespace analog {
++
++    basis_change::sptr
++    basis_change::make(int vlen, bool cir_to_lin)
++    {
++      return gnuradio::get_initial_sptr
++        (new basis_change_impl(vlen, cir_to_lin));
++    }
++
++
++    /*
++     * The private constructor
++     */
++    basis_change_impl::basis_change_impl(int vlen, bool circ_to_lin)
++      : gr::sync_block("basis_change",
++              gr::io_signature::make(2, 2, sizeof(gr_complex) * vlen),
++              gr::io_signature::make(2, 2, sizeof(gr_complex) * vlen))
++    {
++        d_vlen = vlen;
++        d_circ_to_lin = circ_to_lin;
++    }
++
++    /*
++     * Our virtual destructor.
++     */
++    basis_change_impl::~basis_change_impl()
++    {
++    }
++
++    int
++    basis_change_impl::work(int noutput_items,
++        gr_vector_const_void_star &input_items,
++        gr_vector_void_star &output_items)
++    {
++      
++      if (d_circ_to_lin) {  
++          const gr_complex *left = (const gr_complex *) input_items[0];
++          const gr_complex *right = (const gr_complex *) input_items[1];
++
++          gr_complex *vertical = (gr_complex *) output_items[0];
++          gr_complex *horizontal = (gr_complex *) output_items[1];
++
++          // Compute the horizontal polarization 
++          volk_32f_x2_add_32f((float *) horizontal, (float *) left, (float *) right, noutput_items * d_vlen * 2); 
++          volk_32f_s32f_multiply_32f((float *) horizontal, (float *) horizontal, M_SQRT1_2, noutput_items * d_vlen * 2);     
++
++          volk_32f_x2_subtract_32f((float *) vertical, (float *) right, (float *) left, noutput_items * d_vlen * 2);
++          volk_32fc_s32fc_multiply_32fc(vertical, vertical, gr_complex(0, M_SQRT1_2), noutput_items * d_vlen);
++
++      } else {
++          const gr_complex *vertical = (const gr_complex *) input_items[0];
++          const gr_complex *horizontal = (const gr_complex *) input_items[1];
++
++          gr_complex *left = (gr_complex *) output_items[0];
++          gr_complex *right = (gr_complex *) output_items[1];
++
++
++          gr_complex scaled_vertical[noutput_items];
++          volk_32fc_s32fc_multiply_32fc(scaled_vertical, vertical, gr_complex(0, M_SQRT1_2), noutput_items * d_vlen);
++          
++          volk_32f_s32f_multiply_32f((float *) left, (float *) horizontal, M_SQRT1_2, noutput_items * d_vlen * 2);
++          
++          volk_32f_x2_subtract_32f((float *) right, (float *) left, (float *) scaled_vertical, noutput_items * d_vlen * 2);
++          volk_32f_x2_add_32f((float *) left, (float *) left, (float *) scaled_vertical, noutput_items * d_vlen * 2);
++
++//          for (int i = 0; i < noutput_items * d_vlen; i++) {
++//              left[i]  = (float)M_SQRT1_2 * (horizontal[i] + gr_complex(0, 1) * vertical[i]);
++//              right[i] = (float)M_SQRT1_2 * (horizontal[i] - gr_complex(0, 1) * vertical[i]);
++//          }
++        
++      } 
++      
++      return noutput_items;
++    }
++
++  } /* namespace analog */
++} /* namespace gr */
++
+diff --git a/gr-analog/lib/basis_change_impl.h b/gr-analog/lib/basis_change_impl.h
+new file mode 100644
+index 00000000000..c1331e0a5f1
+--- /dev/null
++++ b/gr-analog/lib/basis_change_impl.h
+@@ -0,0 +1,50 @@
++/* -*- c++ -*- */
++/*
++ * Copyright 2019 Derek Kozel.
++ *
++ * This is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 3, or (at your option)
++ * any later version.
++ *
++ * This software is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this software; see the file COPYING.  If not, write to
++ * the Free Software Foundation, Inc., 51 Franklin Street,
++ * Boston, MA 02110-1301, USA.
++ */
++
++#ifndef INCLUDED_ANALOG_BASIS_CHANGE_IMPL_H
++#define INCLUDED_ANALOG_BASIS_CHANGE_IMPL_H
++
++#include <gnuradio/analog/basis_change.h>
++
++namespace gr {
++  namespace analog {
++
++    class basis_change_impl : public basis_change
++    {
++     private:
++      int d_vlen = 1;
++      bool d_circ_to_lin = true;
++     public:
++      basis_change_impl(int vlen, bool circ_to_lin);
++      ~basis_change_impl();
++
++      // Where all the action really happens
++      int work(
++              int noutput_items,
++              gr_vector_const_void_star &input_items,
++              gr_vector_void_star &output_items
++      );
++    };
++
++  } // namespace analog
++} // namespace gr
++
++#endif /* INCLUDED_ANALOG_BASIS_CHANGE_IMPL_H */
++
+diff --git a/gr-analog/python/analog/bindings/CMakeLists.txt b/gr-analog/python/analog/bindings/CMakeLists.txt
+index 603cd4cc892..3b1b39e6c8a 100644
+--- a/gr-analog/python/analog/bindings/CMakeLists.txt
++++ b/gr-analog/python/analog/bindings/CMakeLists.txt
+@@ -12,6 +12,7 @@ list(APPEND analog_python_files
+     agc3_cc_python.cc
+     agc_cc_python.cc
+     agc_ff_python.cc
++    basis_change_python.cc
+     cpfsk_bc_python.cc
+     cpm_python.cc
+     ctcss_squelch_ff_python.cc
+diff --git a/gr-analog/python/analog/bindings/basis_change_python.cc b/gr-analog/python/analog/bindings/basis_change_python.cc
+new file mode 100644
+index 00000000000..81f9ed2b5b9
+--- /dev/null
++++ b/gr-analog/python/analog/bindings/basis_change_python.cc
+@@ -0,0 +1,49 @@
++/*
++ * Copyright 2022 Free Software Foundation, Inc.
++ *
++ * This file is part of GNU Radio
++ *
++ * SPDX-License-Identifier: GPL-3.0-or-later
++ *
++ */
++
++/***********************************************************************************/
++/* This file is automatically generated using bindtool and can be manually edited  */
++/* The following lines can be configured to regenerate this file during cmake      */
++/* If manual edits are made, the following tags should be modified accordingly.    */
++/* BINDTOOL_GEN_AUTOMATIC(0)                                                       */
++/* BINDTOOL_USE_PYGCCXML(0)                                                        */
++/* BINDTOOL_HEADER_FILE(basis_change.h)                                        */
++/* BINDTOOL_HEADER_FILE_HASH(a88b812d1f45527c1655776bde34f184)                     */
++/***********************************************************************************/
++
++#include <pybind11/complex.h>
++#include <pybind11/pybind11.h>
++#include <pybind11/stl.h>
++
++namespace py = pybind11;
++
++#include <gnuradio/analog/basis_change.h>
++// pydoc.h is automatically generated in the build directory
++#include <basis_change_pydoc.h>
++
++void bind_basis_change(py::module& m)
++{
++
++    using basis_change = ::gr::analog::basis_change;
++
++
++    py::class_<basis_change,
++               gr::sync_block,
++               gr::block,
++               gr::basic_block,
++               std::shared_ptr<basis_change>>(m, "basis_change", D(basis_change))
++
++        .def(py::init(&basis_change::make),
++             py::arg("vlen"),
++             py::arg("circ_to_lin"),
++             D(basis_change, make))
++
++
++        ;
++}
+diff --git a/gr-analog/python/analog/bindings/docstrings/basis_change_pydoc_template.h b/gr-analog/python/analog/bindings/docstrings/basis_change_pydoc_template.h
+new file mode 100644
+index 00000000000..b42a01124f0
+--- /dev/null
++++ b/gr-analog/python/analog/bindings/docstrings/basis_change_pydoc_template.h
+@@ -0,0 +1,24 @@
++/*
++ * Copyright 2022 Free Software Foundation, Inc.
++ *
++ * This file is part of GNU Radio
++ *
++ * SPDX-License-Identifier: GPL-3.0-or-later
++ *
++ */
++#include "pydoc_macros.h"
++#define D(...) DOC(gr, analog, __VA_ARGS__)
++/*
++  This file contains placeholders for docstrings for the Python bindings.
++  Do not edit! These were automatically extracted during the binding process
++  and will be overwritten during the build process
++ */
++
++
++static const char* __doc_gr_analog_basis_change = R"doc()doc";
++
++
++static const char* __doc_gr_analog_basis_change_basis_change = R"doc()doc";
++
++
++static const char* __doc_gr_analog_basis_change_make = R"doc()doc";
+diff --git a/gr-analog/python/analog/bindings/python_bindings.cc b/gr-analog/python/analog/bindings/python_bindings.cc
+index 04969f58f73..06fef9cef3e 100644
+--- a/gr-analog/python/analog/bindings/python_bindings.cc
++++ b/gr-analog/python/analog/bindings/python_bindings.cc
+@@ -22,6 +22,7 @@ void bind_agc2_ff(py::module&);
+ void bind_agc3_cc(py::module&);
+ void bind_agc_cc(py::module&);
+ void bind_agc_ff(py::module&);
++void bind_basis_change(py::module& m);
+ void bind_cpfsk_bc(py::module&);
+ void bind_cpm(py::module&);
+ void bind_ctcss_squelch_ff(py::module&);
+@@ -76,6 +77,7 @@ PYBIND11_MODULE(analog_python, m)
+     bind_agc3_cc(m);
+     bind_agc_cc(m);
+     bind_agc_ff(m);
++    bind_basis_change(m);
+     bind_cpfsk_bc(m);
+     bind_cpm(m);
+     bind_dpll_bb(m);
