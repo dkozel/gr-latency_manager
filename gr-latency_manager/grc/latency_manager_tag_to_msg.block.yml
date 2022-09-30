@@ -1,6 +1,6 @@
 id: latency_manager_tag_to_msg
-label: tag_to_msg
-category: '[Latency_Manager]'
+label: Tags to Message
+category: '[Stream Tag Tools]'
 
 templates:
   imports: import gnuradio.latency_manager as latency_manager

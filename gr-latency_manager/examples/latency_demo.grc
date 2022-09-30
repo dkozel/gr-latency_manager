@@ -47,7 +47,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [368, 12.0]
+    coordinate: [456, 4.0]
     rotation: 0
     state: true
 - name: latency_canary
@@ -62,7 +62,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [248, 12.0]
+    coordinate: [296, 4.0]
     rotation: 0
     state: true
 - name: samp_rate
@@ -74,7 +74,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [160, 8.0]
+    coordinate: [192, 12.0]
     rotation: 0
     state: enabled
 - name: analog_noise_source_x_0
@@ -82,7 +82,7 @@ blocks:
   parameters:
     affinity: ''
     alias: ''
-    amp: '0.1'
+    amp: '0.01'
     comment: ''
     maxoutbuf: '0'
     minoutbuf: '0'
@@ -93,7 +93,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [168, 300.0]
+    coordinate: [88, 132.0]
     rotation: 0
     state: enabled
 - name: audio_sink_0
@@ -110,9 +110,9 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [952, 60.0]
+    coordinate: [1096, 324.0]
     rotation: 0
-    state: true
+    state: enabled
 - name: blocks_add_const_vxx_0
   id: blocks_add_const_vxx
   parameters:
@@ -128,7 +128,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [600, 188.0]
+    coordinate: [600, 276.0]
     rotation: 0
     state: enabled
 - name: blocks_add_const_vxx_0_0
@@ -146,7 +146,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [600, 236.0]
+    coordinate: [600, 324.0]
     rotation: 0
     state: enabled
 - name: blocks_add_const_vxx_0_0_0
@@ -164,7 +164,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [600, 284.0]
+    coordinate: [600, 372.0]
     rotation: 0
     state: enabled
 - name: blocks_add_const_vxx_0_0_0_0
@@ -182,7 +182,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [600, 140.0]
+    coordinate: [600, 228.0]
     rotation: 0
     state: enabled
 - name: blocks_add_const_vxx_0_0_1
@@ -200,7 +200,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [600, 92.0]
+    coordinate: [600, 180.0]
     rotation: 0
     state: enabled
 - name: blocks_add_const_vxx_0_1
@@ -218,7 +218,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [600, 44.0]
+    coordinate: [600, 132.0]
     rotation: 0
     state: enabled
 - name: blocks_add_xx_0
@@ -236,7 +236,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [496, 156.0]
+    coordinate: [408, 128.0]
     rotation: 0
     state: enabled
 - name: blocks_message_debug_0
@@ -250,7 +250,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1208, 200.0]
+    coordinate: [1416, 408.0]
     rotation: 0
     state: true
 - name: blocks_multiply_const_vxx_0
@@ -268,7 +268,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [304, 172.0]
+    coordinate: [128, 244.0]
     rotation: 0
     state: enabled
 - name: blocks_multiply_xx_0
@@ -286,7 +286,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [456, 304.0]
+    coordinate: [376, 256.0]
     rotation: 0
     state: true
 - name: blocks_probe_rate_0
@@ -305,28 +305,9 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [920, 120.0]
+    coordinate: [1096, 388.0]
     rotation: 0
     state: true
-- name: blocks_throttle_0
-  id: blocks_throttle
-  parameters:
-    affinity: ''
-    alias: ''
-    comment: ''
-    ignoretag: 'True'
-    maxoutbuf: '0'
-    minoutbuf: '0'
-    samples_per_second: samp_rate
-    type: float
-    vlen: '1'
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [752, 188.0]
-    rotation: 0
-    state: enabled
 - name: blocks_vector_source_x_0
   id: blocks_vector_source_x
   parameters:
@@ -338,13 +319,13 @@ blocks:
     repeat: 'True'
     tags: '[latency_canary]'
     type: float
-    vector: (1,)*100
+    vector: (0.2,)*100
     vlen: '1'
   states:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [8, 144.0]
+    coordinate: [0, 428.0]
     rotation: 0
     state: true
 - name: latency_manager_latency_manager_0
@@ -363,9 +344,9 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [240, 488.0]
+    coordinate: [304, 452.0]
     rotation: 0
-    state: true
+    state: enabled
 - name: latency_manager_tag_to_msg_0
   id: latency_manager_tag_to_msg
   parameters:
@@ -385,9 +366,9 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [744, 512.0]
-    rotation: 0
-    state: true
+    coordinate: [584, 532.0]
+    rotation: 180
+    state: enabled
 - name: qtgui_freq_sink_x_0
   id: qtgui_freq_sink_x
   parameters:
@@ -466,7 +447,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [920, 260.0]
+    coordinate: [1096, 468.0]
     rotation: 0
     state: enabled
 
@@ -474,7 +455,10 @@ connections:
 - [analog_noise_source_x_0, '0', blocks_add_xx_0, '1']
 - [blocks_add_const_vxx_0, '0', blocks_add_const_vxx_0_0, '0']
 - [blocks_add_const_vxx_0_0, '0', blocks_add_const_vxx_0_0_0, '0']
-- [blocks_add_const_vxx_0_0_0, '0', blocks_throttle_0, '0']
+- [blocks_add_const_vxx_0_0_0, '0', audio_sink_0, '0']
+- [blocks_add_const_vxx_0_0_0, '0', blocks_probe_rate_0, '0']
+- [blocks_add_const_vxx_0_0_0, '0', latency_manager_tag_to_msg_0, '0']
+- [blocks_add_const_vxx_0_0_0, '0', qtgui_freq_sink_x_0, '0']
 - [blocks_add_const_vxx_0_0_0_0, '0', blocks_add_const_vxx_0, '0']
 - [blocks_add_const_vxx_0_0_1, '0', blocks_add_const_vxx_0_0_0_0, '0']
 - [blocks_add_const_vxx_0_1, '0', blocks_add_const_vxx_0_0_1, '0']
@@ -482,15 +466,11 @@ connections:
 - [blocks_multiply_const_vxx_0, '0', blocks_multiply_xx_0, '0']
 - [blocks_multiply_xx_0, '0', blocks_add_xx_0, '0']
 - [blocks_probe_rate_0, rate, blocks_message_debug_0, print]
-- [blocks_throttle_0, '0', audio_sink_0, '0']
-- [blocks_throttle_0, '0', blocks_probe_rate_0, '0']
-- [blocks_throttle_0, '0', latency_manager_tag_to_msg_0, '0']
-- [blocks_throttle_0, '0', qtgui_freq_sink_x_0, '0']
+- [blocks_vector_source_x_0, '0', blocks_multiply_const_vxx_0, '0']
 - [blocks_vector_source_x_0, '0', latency_manager_latency_manager_0, '0']
-- [latency_manager_latency_manager_0, '0', blocks_multiply_const_vxx_0, '0']
 - [latency_manager_latency_manager_0, '0', blocks_multiply_xx_0, '1']
 - [latency_manager_tag_to_msg_0, msg, latency_manager_latency_manager_0, token]
 
 metadata:
   file_format: 1
-  grc_version: v3.11.0.0git-205-g0427b2a6
+  grc_version: v3.11.0.0git-233-ga20232e9

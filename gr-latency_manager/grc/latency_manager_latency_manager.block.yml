@@ -1,6 +1,6 @@
 id: latency_manager_latency_manager
 label: Latency Manager
-category: '[Latency_Manager]'
+category: '[Latency Manager]'
 
 parameters:
 - id: type
